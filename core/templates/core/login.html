@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | ConnectSphere</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.10);
+        }
+        
+        .logo {
+            text-align: center;
+            color: #2563eb;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #667085;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            color: #344054;
+            margin-bottom: 7px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: #2563eb;
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .login-button:hover {
+            background: #1d4ed8;
+        }
+        
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #667085;
+        }
+        
+        .register-link a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #667085;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 500px) {
+            .login-container {
+                padding: 28px 22px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="logo">
+            ConnectSphere
+        </div>
+
+        <p class="subtitle">
+            Welcome back! Login to continue.
+        </p>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            </div>
+
+            <button type="submit" class="login-button">
+                Login
+            </button>
+
+        </form>
+
+        <p class="register-link">
+            Don't have an account?
+            <a href="/register/">Create Account</a>
+        </p>
+
+        <a href="/" class="back-home">
+            ← Back to Home
+        </a>
+
+    </div>
+
+</body>
+
+</html>

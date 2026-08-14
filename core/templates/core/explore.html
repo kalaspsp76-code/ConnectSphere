@@ -1,0 +1,170 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Explore People - ConnectSphere</title>
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+
+<body>
+
+    <header class="main-header">
+
+        <div class="header-container">
+
+            <a href="{% url 'dashboard' %}" class="brand">
+            ConnectSphere
+        </a>
+
+            <div class="header-right">
+
+                <a href="{% url 'dashboard' %}" class="dashboard-link">
+                ← Dashboard
+            </a>
+
+                <a href="{% url 'logout' %}" class="logout-btn">
+                Logout
+            </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="explore-page">
+
+        <div class="explore-header">
+
+            <h1>🔎 Explore People</h1>
+
+            <p>
+                Discover new people and grow your ConnectSphere community.
+            </p>
+
+        </div>
+
+
+        <section class="people-grid">
+
+            {% for item in user_data %}
+
+            <div class="person-card">
+
+                <!-- Profile picture -->
+
+                <a href="{% url 'user_profile' item.user.id %}">
+
+    {% if item.profile.profile_picture %}
+
+        <img
+            src="{{ item.profile.profile_picture.url }}"
+            alt="{{ item.user.username }}"
+            class="person-avatar"
+        >
+
+    {% else %}
+
+        <div class="person-avatar-placeholder">
+            {{ item.user.username|first|upper }}
+        </div>
+
+    {% endif %}
+
+</a>
+
+
+                <!-- User information -->
+
+                <div class="person-info">
+
+                    <h2>
+                        <a href="{% url 'user_profile' item.user.id %}" class="person-profile-link">
+        {{ item.user.username }}
+    </a>
+                    </h2>
+
+                    {% if item.profile.bio %}
+
+                    <p class="person-bio">
+                        {{ item.profile.bio }}
+                    </p>
+
+                    {% else %}
+
+                    <p class="person-bio">
+                        Connect with {{ item.user.username }}
+                    </p>
+
+                    {% endif %}
+
+
+                    <div class="person-stats">
+
+                        <span>
+                        <strong>{{ item.followers_count }}</strong>
+                        Followers
+                    </span>
+
+                        <span>
+                        <strong>{{ item.following_count }}</strong>
+                        Following
+                    </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Follow button -->
+
+                <form method="POST" action="{% url 'follow_user' item.user.id %}">
+
+                    {% csrf_token %} {% if item.is_following %}
+
+                    <button type="submit" class="follow-btn following">
+                        ✓ Following
+                    </button> {% else %}
+
+                    <button type="submit" class="follow-btn">
+                        + Follow
+                    </button> {% endif %}
+
+                </form>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-people">
+
+                <div>
+                    👥
+                </div>
+
+                <h2>
+                    No people to explore
+                </h2>
+
+                <p>
+                    You're already connected with everyone!
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

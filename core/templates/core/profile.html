@@ -1,0 +1,270 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ request.user.username }} | ConnectSphere</title>
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <header class="main-header">
+
+        <div class="header-container">
+
+            <a href="{% url 'dashboard' %}" class="brand">
+                ConnectSphere
+            </a>
+
+            <div class="header-right">
+
+                <a href="{% url 'dashboard' %}" class="dashboard-link">
+
+                    ← Dashboard
+
+                </a>
+
+                <a href="{% url 'logout' %}" class="logout-btn">
+
+                    Logout
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- PROFILE -->
+
+    <main class="profile-page">
+
+        <section class="profile-card-new">
+
+            <!-- PROFILE PICTURE -->
+
+            {% if profile.profile_picture %}
+
+            <img src="{{ profile.profile_picture.url }}" alt="{{ request.user.username }}" class="large-profile-picture"> {% else %}
+
+            <div class="large-profile-placeholder">
+
+                {{ request.user.username|first|upper }}
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- USERNAME -->
+
+            <h1 class="profile-username">
+
+                {{ request.user.username }}
+
+            </h1>
+
+
+            <!-- EMAIL -->
+
+            <p class="profile-email">
+
+                {{ request.user.email }}
+
+            </p>
+
+
+            <!-- BIO -->
+
+            <p class="profile-bio-new">
+
+                {% if profile.bio %} {{ profile.bio }} {% else %} Welcome to my ConnectSphere profile! 🚀 {% endif %}
+
+            </p>
+
+
+            <!-- EDIT BUTTON -->
+
+            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">
+
+                ✏️ Edit Profile
+
+            </a>
+
+
+            <!-- STATS -->
+
+            <div class="profile-stat-box">
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                        {{ posts.count }}
+                    </strong>
+
+                    <span>
+                        Posts
+                    </span>
+
+                </div>
+
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                        {{ followers_count }}
+                    </strong>
+
+                    <span>
+                        Followers
+                    </span>
+
+                </div>
+
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                        {{ following_count }}
+                    </strong>
+
+                    <span>
+                        Following
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MY POSTS -->
+
+        <section class="profile-posts">
+
+            <div class="profile-posts-heading">
+
+                <h2>
+                    My Posts
+                </h2>
+
+                <span>
+                    {{ posts.count }} post{{ posts.count|pluralize }}
+                </span>
+
+            </div>
+
+
+            {% for post in posts %}
+
+            <article class="profile-post-card">
+
+                <!-- POST HEADER -->
+
+                <div class="profile-post-header">
+
+                    {% if profile.profile_picture %}
+
+                    <img src="{{ profile.profile_picture.url }}" alt="{{ request.user.username }}" class="profile-post-avatar"> {% else %}
+
+                    <div class="profile-post-avatar-placeholder">
+
+                        {{ post.author.username|first|upper }}
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div>
+
+                        <div class="profile-post-author">
+
+                            {{ post.author.username }}
+
+                        </div>
+
+                        <div class="profile-post-time">
+
+                            {{ post.created_at|timesince }} ago
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONTENT -->
+
+                <div class="profile-post-content">
+
+                    {{ post.content|linebreaks }}
+
+                </div>
+
+
+                <!-- STATS -->
+
+                <div class="profile-post-actions">
+
+                    <span>
+                        ❤️ {{ post.likes.count }} Likes
+                    </span>
+
+                    <span>
+                        💬 {{ post.comments.count }} Comments
+                    </span>
+
+                </div>
+
+            </article>
+
+
+            {% empty %}
+
+            <div class="profile-empty">
+
+                <div class="profile-empty-icon">
+                    📝
+                </div>
+
+                <h3>
+                    No posts yet
+                </h3>
+
+                <p>
+                    You haven't created any posts yet. Share something with your community!
+                </p>
+
+                <a href="{% url 'dashboard' %}" class="create-first-post">
+
+                    ✨ Create Your First Post
+
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

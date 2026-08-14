@@ -1,0 +1,257 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{ target_user.username }} | ConnectSphere
+    </title>
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+
+</head>
+
+<body>
+
+    <header class="main-header">
+
+        <div class="header-container">
+
+            <a href="{% url 'dashboard' %}" class="brand">
+
+            ConnectSphere
+
+        </a>
+
+            <div class="header-right">
+
+                <a href="{% url 'explore' %}" class="dashboard-link">
+
+                ← Explore
+
+            </a>
+
+                <a href="{% url 'logout' %}" class="logout-btn">
+
+                Logout
+
+            </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="profile-page">
+
+        <section class="profile-card-new">
+
+            {% if profile.profile_picture %}
+
+            <img src="{{ profile.profile_picture.url }}" alt="{{ target_user.username }}" class="large-profile-picture"> {% else %}
+
+            <div class="large-profile-placeholder">
+
+                {{ target_user.username|first|upper }}
+
+            </div>
+
+            {% endif %}
+
+
+            <h1 class="profile-username">
+
+                {{ target_user.username }}
+
+            </h1>
+
+
+            {% if profile.bio %}
+
+            <p class="profile-bio-new">
+
+                {{ profile.bio }}
+
+            </p>
+
+            {% else %}
+
+            <p class="profile-bio-new">
+
+                Welcome to {{ target_user.username }}'s ConnectSphere profile! 🚀
+
+            </p>
+
+            {% endif %} {% if target_user != request.user %}
+
+            <form method="POST" action="{% url 'follow_user' target_user.id %}">
+
+                {% csrf_token %} {% if is_following %}
+
+                <button type="submit" class="edit-profile-btn">
+
+                        ✓ Following
+
+                    </button> {% else %}
+
+                <button type="submit" class="edit-profile-btn">
+
+                        + Follow
+
+                    </button> {% endif %}
+
+            </form>
+
+            {% endif %}
+
+
+            <div class="profile-stat-box">
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                    {{ posts.count }}
+                </strong>
+
+                    <span>
+                    Posts
+                </span>
+
+                </div>
+
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                    {{ followers_count }}
+                </strong>
+
+                    <span>
+                    Followers
+                </span>
+
+                </div>
+
+
+                <div class="profile-stat-item">
+
+                    <strong>
+                    {{ following_count }}
+                </strong>
+
+                    <span>
+                    Following
+                </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="profile-posts">
+
+            <div class="profile-posts-heading">
+
+                <h2>
+                    {{ target_user.username }}'s Posts
+                </h2>
+
+            </div>
+
+
+            {% for post in posts %}
+
+            <article class="profile-post-card">
+
+                <div class="profile-post-header">
+
+                    {% if profile.profile_picture %}
+
+                    <img src="{{ profile.profile_picture.url }}" class="profile-post-avatar" alt="{{ target_user.username }}"> {% else %}
+
+                    <div class="profile-post-avatar-placeholder">
+
+                        {{ target_user.username|first|upper }}
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div>
+
+                        <div class="profile-post-author">
+
+                            {{ target_user.username }}
+
+                        </div>
+
+                        <div class="profile-post-time">
+
+                            {{ post.created_at|timesince }} ago
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-post-content">
+
+                    {{ post.content|linebreaks }}
+
+                </div>
+
+
+                <div class="profile-post-actions">
+
+                    <span>
+                        ❤️ {{ post.likes.count }} Likes
+                    </span>
+
+                    <span>
+                        💬 {{ post.comments.count }} Comments
+                    </span>
+
+                </div>
+
+            </article>
+
+            {% empty %}
+
+            <div class="profile-empty">
+
+                <div class="profile-empty-icon">
+                    📝
+                </div>
+
+                <h3>
+                    No posts yet
+                </h3>
+
+                <p>
+                    {{ target_user.username }} hasn't created any posts yet.
+                </p>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

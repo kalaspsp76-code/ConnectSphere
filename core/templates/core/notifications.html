@@ -1,0 +1,165 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications - ConnectSphere</title>
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+
+<body>
+
+    <header class="main-header">
+
+        <div class="header-container">
+
+            <a href="{% url 'dashboard' %}" class="brand">
+                ConnectSphere
+            </a>
+
+            <div class="header-right">
+
+                <a href="{% url 'dashboard' %}" class="dashboard-link">
+                    ← Dashboard
+                </a>
+
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="notifications-page">
+
+        <div class="notifications-header">
+
+            <div>
+                <h1>🔔 Notifications</h1>
+
+                <p>
+                    Stay updated with your ConnectSphere activity.
+                </p>
+            </div>
+
+
+            {% if unread_count > 0 %}
+
+            <form method="POST" action="{% url 'mark_notifications_read' %}">
+
+                {% csrf_token %}
+
+                <button type="submit" class="mark-read-btn">
+                    ✓ Mark all as read
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+
+        <section class="notifications-card">
+
+            {% if notifications %} {% for notification in notifications %}
+
+            <div class="notification-item
+                    {% if not notification.is_read %}
+                        unread
+                    {% endif %}
+                ">
+
+                <div class="notification-avatar">
+
+                    {{ notification.sender.username|first|upper }}
+
+                </div>
+
+
+                <div class="notification-content">
+
+                    <div class="notification-message">
+
+                        {% if "liked" in notification.message %}
+
+                        <span class="notification-icon">
+                                    ❤️
+                                </span> {% elif "commented" in notification.message %}
+
+                        <span class="notification-icon">
+                                    💬
+                                </span> {% elif "following" in notification.message %}
+
+                        <span class="notification-icon">
+                                    👤
+                                </span> {% else %}
+
+                        <span class="notification-icon">
+                                    🔔
+                                </span> {% endif %}
+
+
+                        <strong>
+                                {{ notification.sender.username }}
+                            </strong> {{ notification.message|cut:notification.sender.username }}
+
+                    </div>
+
+
+                    <div class="notification-time">
+
+                        🕐 {{ notification.created_at|timesince }} ago
+
+                    </div>
+
+                </div>
+
+
+                {% if not notification.is_read %}
+
+                <span class="unread-dot" title="Unread notification">
+                        </span> {% endif %}
+
+            </div>
+
+            {% endfor %} {% else %}
+
+            <div class="empty-notifications">
+
+                <div class="empty-bell">
+                    🔔
+                </div>
+
+                <h2>
+                    No notifications yet
+                </h2>
+
+                <p>
+                    When someone interacts with you, you'll see it here.
+                </p>
+
+                <a href="{% url 'explore' %}" class="explore-btn">
+                        🔍 Explore People
+                    </a>
+
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

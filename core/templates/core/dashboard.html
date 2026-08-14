@@ -1,0 +1,455 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | ConnectSphere</title>
+
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+
+<body>
+
+    <!-- ================= NAVBAR ================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            ConnectSphere
+        </div>
+
+        <div class="nav-right">
+
+            <span class="welcome">
+                Welcome, {{ user.username }}
+            </span>
+
+            <a href="{% url 'logout' %}" class="logout">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= MAIN CONTAINER ================= -->
+
+    <main class="container">
+
+        <!-- WELCOME SECTION -->
+
+        <section class="welcome-section">
+
+            <h1>
+                Welcome back, {{ user.username }} 👋
+            </h1>
+
+            <p>
+                Connect with people, share ideas and grow your community.
+            </p>
+
+        </section>
+
+
+        <!-- ================= DASHBOARD GRID ================= -->
+
+        <div class="dashboard-grid">
+
+
+            <!-- ================= LEFT SIDEBAR ================= -->
+
+            <aside class="card left-sidebar">
+
+                <div class="menu">
+
+                    <a href="{% url 'dashboard' %}" class="active">
+                        🏠 Home
+                    </a>
+
+                    <a href="{% url 'profile' %}">
+                        👤 My Profile
+                    </a>
+
+                    <a href="{% url 'explore' %}">
+                        🔍 Explore
+                    </a>
+
+                    <a href="{% url 'notifications' %}" class="notification-link">
+
+                        🔔 Notifications
+
+                        {% if unread_notifications > 0 %}
+
+                        <span class="notification-badge">
+                            {{ unread_notifications }}
+                        </span>
+
+                        {% endif %}
+
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+            <!-- ================= MAIN FEED ================= -->
+
+            <section class="main-feed">
+
+
+                <!-- ================= CREATE POST ================= -->
+
+                <div class="card create-post">
+
+                    <h2>
+                        Create a post
+                    </h2>
+
+                    <form method="POST" action="{% url 'create_post' %}" enctype="multipart/form-data">
+
+                        {% csrf_token %}
+
+                        <textarea name="content" class="post-input" placeholder="What's on your mind?"></textarea>
+
+
+                        <div class="post-upload">
+
+                            <label for="post-image">
+                                📷 Add Image
+                            </label>
+
+                            <input type="file" id="post-image" name="image" accept="image/*" class="post-image-input">
+
+                        </div>
+
+
+                        <button type="submit" class="post-button">
+                            Post
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- ================= POSTS ================= -->
+
+                {% for post in posts %}
+
+                <article class="card post" id="post-{{ post.id }}">
+
+
+                    <!-- POST HEADER -->
+
+                    <div class="post-header">
+
+                        <div class="avatar">
+
+                            {% if post.author.profile.profile_picture %}
+
+                            <img src="{{ post.author.profile.profile_picture.url }}" alt="{{ post.author.username }}"> {% else %} {{ post.author.username|first|upper }} {% endif %}
+
+                        </div>
+
+
+                        <div class="post-author-info">
+
+                            <a href="{% url 'user_profile' post.author.id %}" class="post-user">
+                                {{ post.author.username }}
+                            </a>
+
+                            <div class="post-time">
+                                {{ post.created_at|timesince }} ago
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- POST CONTENT -->
+
+                    {% if post.content %}
+
+                    <div class="post-content">
+
+                        {{ post.content|linebreaks }}
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- POST IMAGE -->
+
+                    {% if post.image %}
+
+                    <div class="post-image-container">
+
+                        <img src="{{ post.image.url }}" class="post-image" alt="Post image">
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- POST ACTIONS -->
+
+                    <div class="post-actions">
+
+
+                        <!-- LIKE -->
+
+                        <form method="POST" action="{% url 'like_post' post.id %}" class="like-form">
+
+                            {% csrf_token %}
+
+                            <button type="submit" class="like-button">
+
+                                {% if request.user in post.likes.all %}
+
+                                ❤️ Unlike
+
+                                {% else %}
+
+                                🤍 Like
+
+                                {% endif %}
+
+                            </button>
+
+                            <span class="action-text">
+                                {{ post.likes.count }} Likes
+                            </span>
+
+                        </form>
+
+
+                        <!-- COMMENTS -->
+
+                        <span class="action-text">
+                            💬 {{ post.comments.count }} Comments
+                        </span>
+
+
+                        <!-- SHARE -->
+
+                        {% url 'user_profile' post.author.id as post_url %}
+
+                        <button type="button" class="share-button" onclick="sharePost('{{ request.scheme }}://{{ request.get_host }}{{ post_url }}#post-{{ post.id }}')">
+                            ↗ Share
+                        </button>
+
+                    </div>
+
+
+                    <!-- ================= COMMENTS ================= -->
+
+                    <div class="comment-section">
+
+
+                        <!-- COMMENT FORM -->
+
+                        <form method="POST" action="{% url 'add_comment' post.id %}" class="comment-form">
+
+                            {% csrf_token %}
+
+                            <input type="text" name="content" class="comment-input" placeholder="Write a comment..." required>
+
+                            <button type="submit" class="comment-button">
+                                Comment
+                            </button>
+
+                        </form>
+
+
+                        <!-- EXISTING COMMENTS -->
+
+                        {% for comment in post.comments.all %}
+
+                        <div class="comment">
+
+                            <div class="comment-header">
+
+
+                                <div class="comment-avatar">
+
+                                    {% if comment.author.profile.profile_picture %}
+
+                                    <img src="{{ comment.author.profile.profile_picture.url }}" alt="{{ comment.author.username }}"> {% else %} {{ comment.author.username|first|upper }} {% endif %}
+
+                                </div>
+
+
+                                <a href="{% url 'user_profile' comment.author.id %}" class="comment-author">
+                                    {{ comment.author.username }}
+                                </a>
+
+
+                                <span class="comment-time">
+                                    {{ comment.created_at|timesince }} ago
+                                </span>
+
+                            </div>
+
+
+                            <p class="comment-content">
+                                {{ comment.content }}
+                            </p>
+
+                        </div>
+
+
+                        {% empty %}
+
+                        <p class="no-comments">
+                            No comments yet.
+                        </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                </article>
+
+
+                {% empty %}
+
+
+                <!-- NO POSTS -->
+
+                <article class="card empty-post">
+
+                    <p>
+                        No posts yet. Be the first to share something! 🚀
+                    </p>
+
+                </article>
+
+
+                {% endfor %}
+
+            </section>
+
+
+            <!-- ================= RIGHT SIDEBAR ================= -->
+
+            <aside class="card right-card right-sidebar">
+
+
+                <h3>
+                    People you may know
+                </h3>
+
+
+                <p class="people-description">
+                    Discover new people and grow your community.
+                </p>
+
+
+                {% for person in users %}
+
+                <div class="person">
+
+
+                    <!-- PERSON AVATAR -->
+
+                    <div class="small-avatar">
+
+                        {% if person.profile.profile_picture %}
+
+                        <img src="{{ person.profile.profile_picture.url }}" alt="{{ person.username }}"> {% else %} {{ person.username|first|upper }} {% endif %}
+
+                    </div>
+
+
+                    <!-- PERSON INFORMATION -->
+
+                    <div class="person-info">
+
+                        <a href="{% url 'user_profile' person.id %}" class="person-name">
+                            {{ person.username }}
+                        </a>
+
+
+                        <div class="person-role">
+
+                            {{ person.email|default:"ConnectSphere user" }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FOLLOW BUTTON -->
+
+                    {% if person.id in following_ids %}
+
+                    <a href="{% url 'follow_user' person.id %}?next=dashboard" class="follow following">
+                        ✓ Following
+                    </a> {% else %}
+
+                    <a href="{% url 'follow_user' person.id %}?next=dashboard" class="follow">
+                        + Follow
+                    </a> {% endif %}
+
+                </div>
+
+
+                {% empty %}
+
+                <p class="no-people">
+                    No new people to show.
+                </p>
+
+                {% endfor %}
+
+
+                <!-- EXPLORE ALL -->
+
+                <a href="{% url 'explore' %}" class="explore-all">
+                    🔍 Explore All People
+                </a>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+
+    <!-- ================= SHARE SCRIPT ================= -->
+
+    <script>
+        function sharePost(url) {
+
+            if (navigator.share) {
+
+                navigator.share({
+                    title: "ConnectSphere Post",
+                    text: "Check out this post on ConnectSphere!",
+                    url: url
+                }).catch(() => {});
+
+            } else {
+
+                navigator.clipboard.writeText(url).then(() => {
+
+                    alert("✅ Post link copied!");
+
+                });
+
+            }
+
+        }
+    </script>
+
+</body>
+
+</html>
